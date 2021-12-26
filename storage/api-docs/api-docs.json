@@ -1,0 +1,22 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Auth api",
+        "version": "0.0.1"
+    },
+    "paths": {
+        "/index": {
+            "get": {
+                "operationId": "f20e5cbda54d774ca343d9b9d576e729",
+                "responses": {
+                    "200": {
+                        "description": "Display a listing of projects."
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        []
+    ]
+}

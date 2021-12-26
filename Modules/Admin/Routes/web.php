@@ -13,4 +13,5 @@
 
 Route::prefix('admin')->group(function() {
     Route::get('/', 'AdminController@index');
+    Route::get('/api/index', 'Api\BaseController@index');
 });
