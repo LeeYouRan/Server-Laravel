@@ -12,7 +12,8 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "nwidart/laravel-modules": "^8.2"
+        "nwidart/laravel-modules": "^8.2",
+        "zedisdog/laravel-schema-extend": "^1.4"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
@@ -63,4 +64,3 @@
     "minimum-stability": "dev",
     "prefer-stable": true
 }
-
