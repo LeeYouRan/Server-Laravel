@@ -13,13 +13,13 @@ class BaseController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/index",
+     *     path="/admin/api/index",
      *     @OA\Response(response="200", description="Display a listing of projects.")
      * )
      */
     public function index()
     {
-        dd('11');
+        dd('Routing test success.');
     }
 
 }

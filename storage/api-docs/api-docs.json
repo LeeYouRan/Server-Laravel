@@ -5,9 +5,9 @@
         "version": "0.0.1"
     },
     "paths": {
-        "/index": {
+        "/admin/api/index": {
             "get": {
-                "operationId": "f20e5cbda54d774ca343d9b9d576e729",
+                "operationId": "0decaddd0e529ecaf88281e92215043d",
                 "responses": {
                     "200": {
                         "description": "Display a listing of projects."
