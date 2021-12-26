@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.5",
         "nwidart/laravel-modules": "^8.2",
         "predis/predis": "^1.1",
+        "tymon/jwt-auth": "^1.0.2",
         "zedisdog/laravel-schema-extend": "^1.4"
     },
     "require-dev": {

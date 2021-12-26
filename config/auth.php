@@ -35,11 +35,18 @@ return [
     |
     */
 
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+//    'guards' => [
+//        'web' => [
+//            'driver' => 'session',
+//            'provider' => 'users',
+//        ],
+//    ],
+
+    'guards'  =>  [
+        'auth_admin' => [
+            'driver' => 'jwt',
+            'provider' => 'auth_admins'
+        ]
     ],
 
     /*
@@ -59,16 +66,23 @@ return [
     |
     */
 
-    'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
-        ],
+//    'providers' => [
+//        'users' => [
+//            'driver' => 'eloquent',
+//            'model' => App\Models\User::class,
+//        ],
+//
+//        // 'users' => [
+//        //     'driver' => 'database',
+//        //     'table' => 'users',
+//        // ],
+//    ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+    'providers' => [
+        'auth_admins' => [
+            'driver' => 'eloquent',
+            'model' => Modules\Admin\Models\AuthAdmin::class,
+        ]
     ],
 
     /*
