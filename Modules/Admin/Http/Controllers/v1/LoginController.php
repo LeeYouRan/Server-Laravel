@@ -29,12 +29,23 @@ class LoginController extends BaseApiController
      * @name 用户登录
      * @description
      * @author Winston
-     * @date 2021/12/26 13:10
-     * @method  POST
-     * @param username String 账号
-     * @param password String 密码
+     * @date 2021/12/26 11:15
+     * @param data  Array 用户信息
+     * @param data.username String 账号
+     * @param data.password String 密码
      * @return JSON
      **/
+
+    /**
+     * @OA\Post(path="/api/v1/admin/login/login",
+     *   tags={"用户登录"},
+     *   summary="用户登录",
+     *   @OA\Parameter(name="apikey", in="header", description="apiKey", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="username", in="query", description="用户名", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="password", in="query", description="密码", @OA\Schema(type="string")),
+     *   @OA\Response(response="200", description="successful operation")
+     * )
+     */
     public function login(LoginRequest $request)
     {
         return (new LoginService())->login($request->only(['username','password']));

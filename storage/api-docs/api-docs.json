@@ -21,7 +21,7 @@
                     "用户登录"
                 ],
                 "summary": "用户登录",
-                "operationId": "e6039d3641f0b4660a3038c0fe89eeda",
+                "operationId": "0bfd53bef0dd9d44f594e72ce5636a1c",
                 "parameters": [
                     {
                         "name": "apikey",
