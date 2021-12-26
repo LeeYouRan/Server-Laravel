@@ -36,9 +36,15 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+//$app->singleton(
+//    Illuminate\Contracts\Debug\ExceptionHandler::class,
+//    App\Exceptions\Handler::class
+//);
+
+//将Laravel异常处理抽离出去
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
-    App\Exceptions\Handler::class
+    Modules\Common\Exceptions\Handler::class
 );
 
 /*
