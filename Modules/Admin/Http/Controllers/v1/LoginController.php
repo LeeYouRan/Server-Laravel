@@ -25,16 +25,6 @@ use Modules\Admin\Http\Requests\LoginRequest;
 use Modules\Admin\Services\auth\LoginService;
 class LoginController extends BaseApiController
 {
-    /**
-     * @name 用户登录
-     * @description
-     * @author Winston
-     * @date 2021/12/26 11:15
-     * @param data  Array 用户信息
-     * @param data.username String 账号
-     * @param data.password String 密码
-     * @return JSON
-     **/
 
     /**
      * @OA\Post(path="/api/v1/admin/login/login",
