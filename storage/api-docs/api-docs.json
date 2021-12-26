@@ -14,6 +14,46 @@
                     }
                 }
             }
+        },
+        "/api/v1/admin/login/login": {
+            "post": {
+                "tags": [
+                    "用户登录"
+                ],
+                "summary": "用户登录",
+                "operationId": "e6039d3641f0b4660a3038c0fe89eeda",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "header",
+                        "description": "apiKey",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "用户名",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "密码",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
         }
     },
     "security": [

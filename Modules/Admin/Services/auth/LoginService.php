@@ -35,6 +35,17 @@ class LoginService extends BaseApiService
      * @param data.password String 密码
      * @return JSON
      **/
+
+    /**
+     * @OA\Post(path="/api/v1/admin/login/login",
+     *   tags={"用户登录"},
+     *   summary="用户登录",
+     *   @OA\Parameter(name="apikey", in="header", description="apiKey", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="username", in="query", description="用户名", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="password", in="query", description="密码", @OA\Schema(type="string")),
+     *   @OA\Response(response="200", description="successful operation")
+     * )
+     */
     public function login(array $data){
         if (true == \Auth::guard('auth_admin')->attempt($data)) {
             $userInfo = AuthAdminModel::where(['username'=>$data['username']])->select('id','username')->first();

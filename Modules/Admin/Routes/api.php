@@ -16,3 +16,8 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/admin', function (Request $request) {
     return $request->user();
 });
+
+Route::group(["prefix"=>"v1/admin","middleware"=>"AdminApiAuth"],function (){
+    //登录
+    Route::post('login/login', 'v1\LoginController@login');
+});

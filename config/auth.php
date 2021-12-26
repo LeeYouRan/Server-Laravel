@@ -43,6 +43,17 @@ return [
 //    ],
 
     'guards'  =>  [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'users',
+            'hash' => false,
+        ],
+
         'auth_admin' => [
             'driver' => 'jwt',
             'provider' => 'auth_admins'
@@ -79,6 +90,11 @@ return [
 //    ],
 
     'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
         'auth_admins' => [
             'driver' => 'eloquent',
             'model' => Modules\Admin\Models\AuthAdmin::class,
