@@ -74,7 +74,7 @@ class ExportService extends BaseApiService
 
         $water = new Watermark($filePath);
         //生成水印图片
-        [$status,$msg,$imgPath] = WatermarkImg::create("慧川广告运营管理系统",date("Y年m月d日 H时i分s秒"),'#FF6666',public_path() . '/font.ttf',public_path() . "/uploads/");
+        [$status,$msg,$imgPath] = WatermarkImg::createDense("慧川广告运营管理系统",date("Y年m月d日 H时i分s秒"),'#FED8D8',public_path() . '/font.ttf',public_path() . "/uploads/");
         if(!$status){
             die($msg);
         }
