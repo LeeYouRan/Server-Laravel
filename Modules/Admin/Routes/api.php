@@ -20,4 +20,7 @@ Route::middleware('auth:api')->get('/admin', function (Request $request) {
 Route::group(["prefix"=>"v1/admin","middleware"=>"AdminApiAuth"],function (){
     //登录
     Route::post('login/login', 'v1\LoginController@login');
+//    Route::any('excel/export', 'v1\ExcelController@export');
 });
+
+Route::any('excel/export', 'v1\ExcelController@export');
