@@ -54,9 +54,21 @@ class ExportService extends BaseApiService
         // 填充示例数据
         $sheet->setCellValue('A1', 'Locked Cell');
         $sheet->setCellValue('B1', 'Unlocked Cell');
-        for ($i = 2; $i <= 7; $i++) {
+        $sheet->setCellValue('C1', 'Locked Cell');
+        $sheet->setCellValue('D1', 'Locked Cell');
+        $sheet->setCellValue('E1', 'Locked Cell');
+        $sheet->setCellValue('F1', 'Locked Cell');
+        $sheet->setCellValue('G1', 'Locked Cell');
+        $sheet->setCellValue('H1', 'Locked Cell');
+        for ($i = 2; $i <= 100; $i++) {
             $sheet->setCellValue('A' . $i, 'Locked ' . $i);
             $sheet->setCellValue('B' . $i, 'Unlocked ' . $i);
+            $sheet->setCellValue('C' . $i, 'Locked ' . $i);
+            $sheet->setCellValue('D' . $i, 'Locked ' . $i);
+            $sheet->setCellValue('E' . $i, 'Locked ' . $i);
+            $sheet->setCellValue('F' . $i, 'Locked ' . $i);
+            $sheet->setCellValue('G' . $i, 'Locked ' . $i);
+            $sheet->setCellValue('H' . $i, 'Locked ' . $i);
         }
 
         // 保护整个工作表
@@ -74,7 +86,7 @@ class ExportService extends BaseApiService
 
         $water = new Watermark($filePath);
         //生成水印图片
-        [$status,$msg,$imgPath] = WatermarkImg::createDense("慧川广告运营管理系统",date("Y年m月d日 H时i分s秒"),'#FED8D8',public_path() . '/font.ttf',public_path() . "/uploads/");
+        [$status,$msg,$imgPath] = WatermarkImg::create(["某某广告运营管理系统", date("Y年m月d日 H时i分s秒")],'#FED8D8',public_path() . '/font.ttf',public_path() . "/uploads/");
         if(!$status){
             die($msg);
         }
