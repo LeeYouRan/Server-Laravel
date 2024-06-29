@@ -24,6 +24,7 @@ namespace Modules\Admin\Http\Controllers\v1;
 use Modules\Admin\Http\Requests\LoginRequest;
 use Modules\Admin\Services\excel\ExportService;
 use Services\WatermarkImg;
+use Illuminate\Http\Request;
 
 class ExcelController extends BaseApiController
 {
@@ -50,5 +51,35 @@ class ExcelController extends BaseApiController
     public function watermark()
     {
         return WatermarkImg::create(["某某管理系统", date("Y年m月d日 H时i分s秒")],'#FED8D8',public_path('font.ttf'));
+    }
+
+    /**
+     * @OA\Get(path="/api/excel/exportMulti",
+     *   tags={"导出受保护且带水印的excel"},
+     *   summary="生成受保护且带水印的excel(数据量较大)",
+     *   @OA\Parameter(name="apikey", in="header", description="apiKey", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="lines", in="query", description="测试函数 1000", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="name", in="query", description="测试文件名", @OA\Schema(type="string")),
+     *   @OA\Response(response="200", description="successful operation")
+     * )
+     */
+    public function exportMulti(Request $request)
+    {
+        return (new ExportService())->exportMulti($request);
+    }
+
+    /**
+     * @OA\Get(path="/api/excel/downloadMulti",
+     *   tags={"导出受保护且带水印的excel"},
+     *   summary="导出受保护且带水印的excel",
+     *   @OA\Parameter(name="apikey", in="header", description="apiKey", @OA\Schema(type="string")),
+     * *   @OA\Parameter(name="lines", in="query", description="测试函数 1000", @OA\Schema(type="string")),
+     * *   @OA\Parameter(name="name", in="query", description="测试文件名", @OA\Schema(type="string")),
+     * *   @OA\Response(response="200", description="successful operation")
+     * )
+     */
+    public function downloadMulti(Request $request)
+    {
+        return (new ExportService())->downloadMulti($request);
     }
 }

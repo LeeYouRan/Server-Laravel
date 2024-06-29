@@ -25,3 +25,5 @@ Route::group(["prefix"=>"v1/admin","middleware"=>"AdminApiAuth"],function (){
 
 Route::any('excel/export', 'v1\ExcelController@export');
 Route::any('excel/watermark', 'v1\ExcelController@watermark');
+Route::any('excel/exportMulti', 'v1\ExcelController@exportMulti');
+Route::any('excel/downloadMulti', 'v1\ExcelController@downloadMulti');

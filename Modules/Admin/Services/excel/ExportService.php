@@ -23,6 +23,8 @@ namespace Modules\Admin\Services\excel;
 use Modules\Admin\Services\BaseApiService;
 use Services\Watermark;
 use Services\WatermarkImg;
+use App\Jobs\GenerateExcelJob;
+use Illuminate\Http\Request;
 
 class ExportService extends BaseApiService
 {
@@ -80,7 +82,7 @@ class ExportService extends BaseApiService
             $sheet->getStyle('B' . $row)->getProtection()->setLocked(\PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);
         }
 
-        $filePath = public_path() . "/uploads/" . "protected_excel.xlsx";
+        $filePath = public_path() . "/uploads/" . "protected_excel_test.xlsx";
         $objWriter = \PHPExcel_IOFactory::createWriter($objPhpExcel, 'Excel2007');
         $objWriter->save($filePath);
 
@@ -95,7 +97,7 @@ class ExportService extends BaseApiService
         $water->close();
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="protected_excel.xlsx"');
+        header('Content-Disposition: attachment;filename="protected_excel_test.xlsx"');
         header('Cache-Control: max-age=0');
 
         readfile($filePath);
@@ -103,6 +105,45 @@ class ExportService extends BaseApiService
         unlink($filePath);
         unlink($imgPath);
         exit;
+    }
+
+    /**
+     * php artisan make:job GenerateExcelJob
+     *
+     * & "E:\Software\phpStudy_V8\Extensions\php\php7.4.3nts\php.exe" "E:\Software\phpStudy_V8\Extensions\composer2.5.8\composer.phar" config -g repo.packagist composer https://mirrors.aliyun.com/composer/
+     *
+     * & "E:\Software\phpStudy_V8\Extensions\php\php7.4.3nts\php.exe" "E:\Software\phpStudy_V8\Extensions\composer2.5.8\composer.phar" require maatwebsite/excel
+     *
+     * E:\Software\phpStudy_V8\Extensions\php\php7.4.3nts\php artisan migrate
+     *
+     * E:\Software\phpStudy_V8\Extensions\php\php7.4.3nts\php artisan queue:work
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function exportMulti(Request $request)
+    {
+        ini_set('memory_limit', '8096M');
+        // 调度队列作业
+        $defaultLines = $request->input('lines', 20000); // 默认20000行
+        $defaultName = $request->input('name', 'protected_excel_'.$defaultLines . '.xlsx'); // 默认20000行
+        GenerateExcelJob::dispatch($defaultLines,$defaultName);
+
+        return response()->json(['message' => 'Excel generation job has been dispatched']);
+    }
+
+    public function downloadMulti(Request $request)
+    {
+        ini_set('memory_limit', '8096M');
+        $defaultLines = $request->input('lines', 1000); // 默认20000行
+        $defaultName = $request->input('name', 'protected_excel_'.$defaultLines . '.xlsx'); // 默认20000行
+        $filePath = storage_path("app/public/$defaultName");
+
+        if (file_exists($filePath)) {
+            return response()->download($filePath)->deleteFileAfterSend(true);
+        } else {
+            return response()->json(['message' => 'File not found'], 404);
+        }
     }
 
 }
