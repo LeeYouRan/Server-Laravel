@@ -208,7 +208,7 @@ class DnfService extends BaseApiService
         $items = $this->handleRequest('PROP_URL', 'GET', $params);
         // 根据筛选条件过滤物品
         if ($filter) {
-            $items = $this->searchTitlesAndReturnIds($items, $filter);
+            $items = $this->searchTitlesWithMultipleChars($items, $filter);
         }
         // 准备发送数据的数组
         $responses = [];
