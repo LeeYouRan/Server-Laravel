@@ -46,7 +46,7 @@ class DnfController extends BaseApiController
      *   @OA\Parameter(name="limit", in="query", description="数量 10000", @OA\Schema(type="string")),
      *   @OA\Parameter(name="title", in="query", description="名称 点券", @OA\Schema(type="string")),
      *   @OA\Parameter(name="grade", in="query", description="等级 65", @OA\Schema(type="string")),
-     *   @OA\Parameter(name="type_id", in="query", description="种类id 1", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="type_id", in="query", description="种类id 1 材料 39 装备 23 消耗品 31 时装礼包", @OA\Schema(type="string")),
      *   @OA\Parameter(name="second_type_id", in="query", description="子类id 25", @OA\Schema(type="string")),
      *   @OA\Response(response="200", description="successful operation")
      * )
@@ -79,6 +79,37 @@ class DnfController extends BaseApiController
     public function propNum()
     {
         return (new DnfService())->propNum();
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/api/dnf/multiSend",
+     *   tags={"DNFM-GM"},
+     *   summary="批量发送物品",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *       @OA\Schema(
+     *         @OA\Property(property="username", type="string", format="text", description="用户名"),
+     *         @OA\Property(property="code", type="string", format="text", description="邀请码"),
+     *         @OA\Property(property="id", type="string", format="text", description="物品ID"),
+     *         @OA\Property(property="num", type="integer", format="int32", description="物品数量"),
+     *         @OA\Property(property="page", type="integer", format="int32", description="页码 1"),
+     *         @OA\Property(property="limit", type="integer", format="int32", description="数量 10000"),
+     *         @OA\Property(property="title", type="string", format="text", description="物品名称"),
+     *         @OA\Property(property="grade", type="integer", format="int32", description="等级"),
+     *         @OA\Property(property="type_id", type="integer", format="int32", description="种类id 1 材料 39 装备 23 消耗品 31 时装礼包"),
+     *         @OA\Property(property="second_type_id", type="integer", format="int32", description="子类id 25"),
+     *         @OA\Property(property="filter", type="string", format="text", description="物品名称过滤")
+     *       )
+     *     )
+     *   ),
+     *   @OA\Response(response="200", description="successful operation")
+     * )
+     */
+    public function multiSend(){
+        return (new DnfService())->multiSend();
     }
 
 }
