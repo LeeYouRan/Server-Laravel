@@ -126,7 +126,7 @@ class DnfService extends BaseApiService
      * @param string $searchTerm
      * @return array
      */
-    function searchTitlesWithMultipleChars(array $dataArray, string $searchTerms): array {
+    private function searchTitlesWithMultipleChars(array $dataArray, string $searchTerms){
         $return = []; // 初始化一个空数组来保存匹配的数据
         $searchTermsArray = preg_split('//u', $searchTerms, -1, PREG_SPLIT_NO_EMPTY); // 分割搜索词为单个字符数组，支持Unicode（适用于中文）
         // 遍历二维数组
