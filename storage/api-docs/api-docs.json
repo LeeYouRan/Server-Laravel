@@ -15,6 +15,140 @@
                 }
             }
         },
+        "/api/dnf/subList": {
+            "get": {
+                "tags": [
+                    "DNFM-GM"
+                ],
+                "summary": "获取子类列表",
+                "operationId": "e3f507afc123236f067d68c403cb6960",
+                "parameters": [
+                    {
+                        "name": "pid",
+                        "in": "query",
+                        "description": "父级id 1",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/api/dnf/propList": {
+            "get": {
+                "tags": [
+                    "DNFM-GM"
+                ],
+                "summary": "获取物品列表",
+                "operationId": "d4734dcf0edd7cc964fcb1b0bb5d2210",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "页码 1",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "数量 10000",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "description": "名称 电券",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "grade",
+                        "in": "query",
+                        "description": "等级 65",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "type_id",
+                        "in": "query",
+                        "description": "种类id 1",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "second_type_id",
+                        "in": "query",
+                        "description": "子类id 25",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/api/dnf/propNum": {
+            "post": {
+                "tags": [
+                    "DNFM-GM"
+                ],
+                "summary": "发送物品",
+                "operationId": "905089702b8dd02ba6b18ce935241125",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "description": "用户名",
+                                        "type": "string",
+                                        "format": "text"
+                                    },
+                                    "code": {
+                                        "description": "邀请码",
+                                        "type": "string",
+                                        "format": "text"
+                                    },
+                                    "id": {
+                                        "description": "物品ID",
+                                        "type": "string",
+                                        "format": "text"
+                                    },
+                                    "num": {
+                                        "description": "物品数量",
+                                        "type": "integer",
+                                        "format": "int32"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
         "/api/excel/export": {
             "get": {
                 "tags": [

@@ -22,8 +22,12 @@ Route::group(["prefix"=>"v1/admin","middleware"=>"AdminApiAuth"],function (){
     Route::post('login/login', 'v1\LoginController@login');
 //    Route::any('excel/export', 'v1\ExcelController@export');
 });
-
+//测试导出 -- 不加登录校验
 Route::any('excel/export', 'v1\ExcelController@export');
 Route::any('excel/watermark', 'v1\ExcelController@watermark');
 Route::any('excel/exportMulti', 'v1\ExcelController@exportMulti');
 Route::any('excel/downloadMulti', 'v1\ExcelController@downloadMulti');
+//测试DNF-GM -- 不加登录校验
+Route::get('dnf/subList', 'v1\DnfController@subList');
+Route::get('dnf/propList', 'v1\DnfController@propList');
+Route::post('dnf/propNum', 'v1\DnfController@propNum');

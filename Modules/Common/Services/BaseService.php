@@ -33,6 +33,18 @@ class BaseService
     }
 
     /**
+     * 获取指定键的参数值，如果不存在或为空，则返回默认值。
+     *
+     * @param array $params 输入的参数数组
+     * @param string $value 需要获取的键名
+     * @param mixed $default 缺省返回值，默认为空字符串
+     * @return mixed 返回找到的值或默认值
+     */
+    function getter(array $params, string $value, $default = '') {
+        return !empty($params[$value]) ? $params[$value] : $default;
+    }
+
+    /**
      * @name 查询条件
      * @description
      * @author Winston
@@ -69,7 +81,7 @@ class BaseService
      * @param data Array 返回信息
      * @return JSON
      **/
-    public function apiSuccess(string $message = '',array $data = array(),int $status = StatusData::Ok){
+    public function apiSuccess($message = '',$data = array(),$status = StatusData::Ok){
         if($message == ''){
             $message = MessageData::Ok;
         }
@@ -89,7 +101,7 @@ class BaseService
      * @param message String 提示信息
      * @return JSON
      **/
-    public function apiError(string $message = MessageData::API_ERROR_EXCEPTION,int $status = StatusData::BAD_REQUEST){
+    public function apiError($message = MessageData::API_ERROR_EXCEPTION,$status = StatusData::BAD_REQUEST){
         throw new ApiException([
             'status' => $status,
             'message'=> $message
