@@ -30,7 +30,6 @@ class DnfService extends BaseApiService
     // 一级类型数组
     protected static $firstTypeOptions =
         [
-            '' => '选择一级类型',
             '1' => '材料',
             '39' => '装备',
             '23' => '消耗品',
@@ -40,7 +39,6 @@ class DnfService extends BaseApiService
     // 二级类型数组
     protected static $secondTypeOptions =
         [
-            '' => '选择二级类型',
             '4' => '普通',
             '43' => '辅助装备',
             '42' => '首饰',
@@ -75,7 +73,6 @@ class DnfService extends BaseApiService
     // 等级数组
     protected static $gradeOptions =
         [
-            '' => '选择等级',
             '65' => '65',
             '60' => '60',
             '55' => '55',
@@ -117,7 +114,10 @@ class DnfService extends BaseApiService
         if($call){
             return $this->getter($decodedResponse,'data');
         }
-        return $this->apiSuccess($this->getter($decodedResponse,'msg'), $this->getter($decodedResponse,'data'), $this->getter($decodedResponse,'code'));
+        $msg = $this->getter($decodedResponse,'msg',MessageData::Ok);
+        $data = $this->getter($decodedResponse,'count') ? ['list'=> $this->getter($decodedResponse,'data'), 'count'=> $this->getter($decodedResponse,'count')] : $this->getter($decodedResponse,'data');
+        $code = $this->getter($decodedResponse,'code');
+        return $this->apiSuccess($msg, $data, $code);
     }
 
     /**
@@ -148,6 +148,19 @@ class DnfService extends BaseApiService
         }
         // 返回所有匹配的数据
         return $return;
+    }
+
+    /**
+     * 枚举
+     * @return \Modules\Common\Services\JSON
+     */
+    public function enum(){
+        $data = [
+            'firstTypeOptions' => self::$firstTypeOptions,
+            'secondTypeOptions' => self::$secondTypeOptions,
+            'gradeOptions' => self::$gradeOptions,
+        ];
+        return $this->apiSuccess(MessageData::Ok,$data);
     }
 
 

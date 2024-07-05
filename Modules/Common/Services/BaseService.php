@@ -86,9 +86,10 @@ class BaseService
             $message = MessageData::Ok;
         }
         return response()->json([
-            'status' => $status,
-            'message'=> $message,
-            'data'=>$data
+            'code' => $status,
+            'msg'=> $message,
+            'data'=>$data,
+            'time' => time()
         ],CodeData::OK);
     }
 
@@ -103,8 +104,9 @@ class BaseService
      **/
     public function apiError($message = MessageData::API_ERROR_EXCEPTION,$status = StatusData::BAD_REQUEST){
         throw new ApiException([
-            'status' => $status,
-            'message'=> $message
+            'code' => $status,
+            'msg'=> $message,
+            'time' => time()
         ]);
     }
     /**

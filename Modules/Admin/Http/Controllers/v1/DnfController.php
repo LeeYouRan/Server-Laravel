@@ -26,6 +26,17 @@ class DnfController extends BaseApiController
 {
 
     /**
+     * @OA\Get(path="/api/dnf/enum",
+     *   tags={"DNFM-GM"},
+     *   summary="获取枚举列表",
+     *   @OA\Response(response="200", description="successful operation")
+     * )
+     */
+    public function enum(){
+        return (new DnfService())->enum();
+    }
+
+    /**
      * @OA\Get(path="/api/dnf/subList",
      *   tags={"DNFM-GM"},
      *   summary="获取子类列表",

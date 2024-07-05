@@ -15,6 +15,20 @@
                 }
             }
         },
+        "/api/dnf/enum": {
+            "get": {
+                "tags": [
+                    "DNFM-GM"
+                ],
+                "summary": "获取枚举列表",
+                "operationId": "e88cf8ba8b6bd08638f8864f8eddaa91",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
         "/api/dnf/subList": {
             "get": {
                 "tags": [
