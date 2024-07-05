@@ -89,6 +89,23 @@ class DnfService extends BaseApiService
             '1' => '1',
         ];
 
+    //页码数组
+    protected static $limitOptions =
+        [
+            '10' => '10',
+            '20' => '20',
+            '30' => '30',
+            '40' => '40',
+            '50' => '50',
+            '60' => '60',
+            '70' => '70',
+            '80' => '80',
+            '90' => '90',
+            '100' => '100',
+            '500' => '500',
+            '1000' => '1000',
+        ];
+
     /**
      * 封装接口返回
      * @param $urlKey
@@ -159,6 +176,7 @@ class DnfService extends BaseApiService
             'firstTypeOptions' => self::$firstTypeOptions,
             'secondTypeOptions' => self::$secondTypeOptions,
             'gradeOptions' => self::$gradeOptions,
+            'limitOptions' => self::$limitOptions,
         ];
         return $this->apiSuccess(MessageData::Ok,$data);
     }
