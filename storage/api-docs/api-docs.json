@@ -66,7 +66,7 @@
                     {
                         "name": "title",
                         "in": "query",
-                        "description": "名称 电券",
+                        "description": "名称 点券",
                         "schema": {
                             "type": "string"
                         }

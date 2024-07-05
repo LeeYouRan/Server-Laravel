@@ -20,7 +20,9 @@
 
 namespace Modules\Admin\Services\dnf;
 
+use Illuminate\Support\Facades\Cache;
 use Modules\Admin\Services\BaseApiService;
+use Modules\Common\Exceptions\MessageData;
 use Services\HttpRequest;
 
 class DnfService extends BaseApiService
@@ -91,31 +93,90 @@ class DnfService extends BaseApiService
             '1' => '1',
         ];
 
-
+    /**
+     * 封装接口返回
+     * @param $urlKey
+     * @param $method
+     * @param $params
+     * @return \Modules\Common\Services\JSON
+     * @throws \Modules\Common\Exceptions\ApiException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     private function handleRequest($urlKey, $method, $params)
     {
+        // 尝试从缓存中获取数据
+        $cachedResponse = Cache::store('redis')->get(env("DNFGM_{$urlKey}"));
+        if ($cachedResponse) {
+            // 直接从缓存中返回数据，减少getter调用
+            return $this->apiSuccess($cachedResponse['msg'], $cachedResponse['data'], $cachedResponse['code']);
+        }
+        // 构造完整URL并发起请求
         $url = env("DNFGM_URL") . env("DNFGM_{$urlKey}");
         $response = $method === 'GET' ? HttpRequest::get($url, $params) : HttpRequest::post($url, $params);
-        $decodedResponse = json_decode($response, true);
-        if ($response !== false) {
-            return $this->apiSuccess($this->getter($decodedResponse, 'msg'), $this->getter($decodedResponse, 'data'), $this->getter($decodedResponse, 'code'));
-        } else {
-            return $this->apiError($this->getter($decodedResponse, 'msg'), $this->getter($decodedResponse, 'code'));
+        // 处理请求失败的情况
+        if ($response === false) {
+            return $this->apiError(MessageData::BAD_REQUEST);
         }
+        // 解码响应
+        $decodedResponse = json_decode($response, true);
+        // 请求成功，更新缓存并返回成功响应
+        Cache::store('redis')->put(env("DNFGM_{$urlKey}"), $decodedResponse, 600);
+        return $this->apiSuccess($decodedResponse['msg'], $decodedResponse['data'], $decodedResponse['code']);
     }
 
+    /**
+     * 根据搜索内容模糊匹配返回符合条件的id
+     * @param array $dataArray
+     * @param string $searchTerm
+     * @return array
+     */
+    private function searchTitlesAndReturnIds(array $dataArray, string $searchTerm): array {
+        // 初始化一个空数组来保存匹配的id
+        $matchedIds = [];
+        // 遍历二维数组
+        foreach ($dataArray as $item) {
+            // 使用strpos进行模糊匹配，如果$title包含$searchTerm则返回true
+            // strpos不区分大小写，若需要区分大小写可改为strcmp($item['title'], $searchTerm) !== false
+            if (stripos($item['title'], $searchTerm) !== false) {
+                // 匹配成功，将id添加到结果数组中
+                $matchedIds[] = $item['id'];
+            }
+        }
+        // 返回所有匹配的id
+        return $matchedIds;
+    }
+
+
+    /**
+     * 子列表
+     * @return \Modules\Common\Services\JSON
+     * @throws \Modules\Common\Exceptions\ApiException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function subList()
     {
         $params = request()->all();
         return $this->handleRequest('SUB_URL', 'GET', $params);
     }
 
+    /**
+     * 物品列表
+     * @return \Modules\Common\Services\JSON
+     * @throws \Modules\Common\Exceptions\ApiException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function propList()
     {
         $params = request()->all();
         return $this->handleRequest('PROP_URL', 'GET', $params);
     }
 
+    /**
+     * 物品发送
+     * @return \Modules\Common\Services\JSON
+     * @throws \Modules\Common\Exceptions\ApiException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
     public function propNum()
     {
         $params = request()->all();
