@@ -117,11 +117,12 @@ class DnfService extends BaseApiService
      */
     private function handleRequest($urlKey, $method, $params)
     {
+        $start = $this->getCurrentMillisecondsTimestamp();
         $call = $this->getter($params,'call');
         $filter = $this->getter($params,'filter');
         if($filter){
             $params['page'] = 1;
-            $params['limit'] = 99999;
+            $params['limit'] = 99999999;
         }
         // 构造完整URL并发起请求
         $url = env("DNFGM_URL") . env("DNFGM_{$urlKey}");
@@ -144,7 +145,9 @@ class DnfService extends BaseApiService
         $msg = $this->getter($decodedResponse,'msg',MessageData::Ok);
         $data = $this->getter($decodedResponse,'count') ? ['list'=> $this->getter($decodedResponse,'data'), 'count'=> $this->getter($decodedResponse,'count')] : $this->getter($decodedResponse,'data');
         $code = $this->getter($decodedResponse,'code');
-        return $this->apiSuccess($msg, $data, $code);
+        $end = $this->getCurrentMillisecondsTimestamp();
+        $calc = $this->calculateTimeDifference($start, $end);
+        return $this->apiSuccess($msg . $calc, $data, $code);
     }
 
     /**
@@ -238,6 +241,7 @@ class DnfService extends BaseApiService
      */
     public function multiSend()
     {
+        $start = $this->getCurrentMillisecondsTimestamp();
         // 获取请求参数，预先设定默认值以减少getter调用
         $params = request()->all();
         $typeId = $params['type_id'] ?? null;
@@ -259,15 +263,17 @@ class DnfService extends BaseApiService
             // 设置物品ID和数量
             $sendParams = [
                 'id' => $item['id'],
-                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? 99999) : ($params['num'] ?? 1),
+                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? 999999) : ($params['num'] ?? 1),
             ];
             // 发送物品
             $responses[] = $this->handleRequest('SEND_URL', 'POST', array_merge($params, $sendParams));
             // 间隔执行，防止并发问题（可根据实际情况调整）
-            usleep(1000000); // 等待1秒，单位为微秒
+            usleep(1000000/20); // 等待1秒，单位为微秒
         }
+        $end = $this->getCurrentMillisecondsTimestamp();
+        $calc = $this->calculateTimeDifference($start, $end);
         // 返回成功的API响应
-        return $this->apiSuccess(MessageData::Ok, $responses);
+        return $this->apiSuccess(MessageData::Ok . $calc, $responses);
     }
 
     /**
@@ -275,17 +281,20 @@ class DnfService extends BaseApiService
      * @return \Modules\Common\Services\JSON
      */
     public function multiDefaultSend(){
+        $start = $this->getCurrentMillisecondsTimestamp();
         // 获取请求参数，预先设定默认值以减少getter调用
         $params = request()->all();
         $params['call'] = true; // 更直观的布尔值
         $params['page'] = 1;
-        $params['limit'] = 9999999;
+        $params['limit'] = 99999999;
         $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>1]));
         $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>39]));
         $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>23]));
         $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>31]));
+        $end = $this->getCurrentMillisecondsTimestamp();
+        $calc = $this->calculateTimeDifference($start, $end);
         // 返回成功的API响应
-        return $this->apiSuccess(MessageData::Ok, $responses);
+        return $this->apiSuccess(MessageData::Ok . $calc, $responses);
     }
 
     /**
@@ -304,7 +313,7 @@ class DnfService extends BaseApiService
         $filter = $params['filter'] ?? '';
         $params['call'] = true; // 更直观的布尔值
         $params['page'] = 1;
-        $params['limit'] = 9999999;
+        $params['limit'] = 99999999;
         // 获取物品列表
         $items = $this->handleRequest('PROP_URL', 'GET', $params);
         // 根据筛选条件过滤物品
@@ -315,14 +324,59 @@ class DnfService extends BaseApiService
             // 设置物品ID和数量
             $sendParams = [
                 'id' => $item['id'],
-                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? 99999) : ($params['num'] ?? 1),
+                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? 999999) : ($params['num'] ?? 1),
             ];
             // 发送物品
             $responses[] = $this->handleRequest('SEND_URL', 'POST', array_merge($params, $sendParams));
             // 间隔执行，防止并发问题（可根据实际情况调整）
-            usleep(1000000); // 等待1秒，单位为微秒
+            usleep(1000000/20); // 等待1秒，单位为微秒
         }
         return $responses;
+    }
+
+    /**
+     * 获取毫秒时间戳
+     * @return float
+     */
+    protected function getCurrentMillisecondsTimestamp() {
+        // 获取当前时间戳（包括微秒），并转换为毫秒
+        return round(microtime(true) * 1000);
+    }
+
+    /**
+     * 计算耗时
+     * @param $startTimestamp
+     * @param $endTimestamp
+     * @return string
+     */
+    private function calculateTimeDifference($startTimestamp, $endTimestamp) {
+        // 计算时间差
+        $difference = abs($endTimestamp - $startTimestamp);
+
+        // 转换为分钟、秒、毫秒
+        $minutes = intdiv($difference, 60000);
+        $difference %= 60000;
+        $seconds = intdiv($difference, 1000);
+        $milliseconds = $difference % 1000;
+
+        // 构建返回字符串
+        $result = '';
+        if ($minutes > 0) {
+            $result .= $minutes . '分钟';
+        }
+        if ($seconds > 0) {
+            $result .= $seconds . '秒';
+        }
+        if ($milliseconds > 0) {
+            $result .= $milliseconds . '毫秒';
+        }
+
+        // 如果所有维度都是0，返回'0毫秒'
+        if ($result === '') {
+            $result = '0毫秒';
+        }
+
+        return '，耗时：' . $result;
     }
 
 }

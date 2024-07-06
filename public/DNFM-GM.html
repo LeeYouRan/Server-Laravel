@@ -4,8 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>首页 - DNFM内容管理系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.2/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <style>
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://img0.baidu.com/it/u=2979825110,2559091601&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=313');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: rgba(255, 255, 255, 0.5); /* Adjust the alpha value to lighten */
+            background-blend-mode: lighten; /* Use blend mode to lighten the background */
+            z-index: -1;
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -20,7 +42,7 @@
         }
     </style>
 </head>
-<body>
+<body class="background">
 <div class="container mt-5">
     <form id="filterForm" class="row g-3">
         <div class="col-md-3">
@@ -111,7 +133,7 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.2/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -141,6 +163,34 @@
         let currentPage = 1;
         let totalPages = 1;
         let enumData = {};
+
+        function showMessage(msg,flag) {
+            if (flag) {
+                showSuccessMessage(msg);
+            } else {
+                showFailMessage(msg);
+            }
+        }
+
+        function showSuccessMessage(msg) {
+            Swal.fire({
+                icon: 'success',
+                title: '操作成功',
+                text: msg,
+                timer: 2000, // 自动关闭时间，单位毫秒
+                timerProgressBar: true,
+            });
+        }
+
+        function showFailMessage(msg) {
+            Swal.fire({
+                icon: 'error',
+                title: '操作失败',
+                text: msg,
+                timer: 2000, // 自动关闭时间，单位毫秒
+                timerProgressBar: true,
+            });
+        }
 
         filterForm.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -335,12 +385,13 @@
                 btn.addEventListener('click', function() {
                     const id = this.getAttribute('data-id');
                     const quantityInput = document.querySelector(`input[type="number"][data-id="${id}"]`);
-                    const quantity = quantityInput ? quantityInput.value : 0;
+                    const quantity = quantityInput ? (quantityInput.value ? quantityInput.value : 1) : 0;
                     const selectedRadio = document.querySelector(`input[name="numOptions-${id}"]:checked`);
                     const selectedValue = selectedRadio ? selectedRadio.value : null;
 
                     if (!quantity && !selectedValue) {
-                        alert('请输入数量或选择一个数量选项');
+                        // alert('请输入数量或选择一个数量选项');
+                        showMessage('请输入数量或选择一个数量选项',false);
                         return;
                     }
 
@@ -348,7 +399,8 @@
                     const code = document.getElementById('code').value;
 
                     if(!username || !code){
-                        alert('用户名和激活码都不能为空');
+                        // alert('用户名和激活码都不能为空');
+                        showMessage('用户名和激活码都不能为空',false);
                         return;
                     }
 
@@ -362,11 +414,17 @@
 
                     axios.post(`${BASE_URL}/api/dnf/propNum`, data)
                         .then(response => {
-                            alert(response.data.msg);
+                            // alert(response.data.msg);
+                            if(!response.data.code){
+                                showMessage(response.data.msg,false);
+                            }else{
+                                showMessage(response.data.msg,true);
+                            }
                         })
                         .catch(error => {
                             console.error('发送失败:', error);
-                            alert('发送失败，请重试');
+                            // alert('发送失败，请重试');
+                            showMessage('发送失败，请重试',false);
                         });
                 });
             });
@@ -476,7 +534,8 @@
             const code = document.getElementById('code').value;
 
             if(!username || !code){
-                alert('用户名和激活码都不能为空');
+                // alert('用户名和激活码都不能为空');
+                showMessage('用户名和激活码都不能为空',false);
                 return;
             }
 
@@ -487,7 +546,12 @@
                 num
             })
             .then(response => {
-                alert(response.data.msg);
+                // alert(response.data.msg);
+                if(!response.data.code){
+                    showMessage(response.data.msg,false);
+                }else{
+                    showMessage(response.data.msg,true);
+                }
                 numModal.hide();
             })
             .catch(error => {
@@ -514,7 +578,8 @@
 		        const multiNum = document.getElementById('multiNum').value;
 		        const filter = document.getElementById('filter').value;
                 if(!type_id){
-                    alert('一级类型必选');
+                    // alert('一级类型必选');
+                    showMessage('一级类型必选',false);
                     return;
                 }
                 axios.post(`${BASE_URL}/api/dnf/multiSend`, {
@@ -529,7 +594,8 @@
                     filter,
                 })
             .then(response => {
-                alert(response.data.msg);
+                // alert(response.data.msg);
+                showMessage(response.data.msg,false);
             })
             .catch(error => {
                 console.error('Error batch sending props:', error);
@@ -557,7 +623,8 @@
                     filter,
                 })
             .then(response => {
-                alert(response.data.msg);
+                // alert(response.data.msg);
+                showMessage(response.data.msg,true);
             })
             .catch(error => {
                 console.error('Error batch sending props:', error);
