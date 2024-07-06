@@ -33,3 +33,4 @@ Route::any('dnf/subList', 'v1\DnfController@subList');
 Route::any('dnf/propList', 'v1\DnfController@propList');
 Route::any('dnf/propNum', 'v1\DnfController@propNum');
 Route::any('dnf/multiSend', 'v1\DnfController@multiSend');
+Route::any('dnf/multiDefaultSend', 'v1\DnfController@multiDefaultSend');

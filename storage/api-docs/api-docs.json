@@ -108,6 +108,14 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "description": "名称过滤 重甲",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -170,6 +178,87 @@
                 ],
                 "summary": "批量发送物品",
                 "operationId": "8543496216d0271114c7881e74d750f5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "description": "用户名",
+                                        "type": "string",
+                                        "format": "text"
+                                    },
+                                    "code": {
+                                        "description": "邀请码",
+                                        "type": "string",
+                                        "format": "text"
+                                    },
+                                    "id": {
+                                        "description": "物品ID",
+                                        "type": "string",
+                                        "format": "text"
+                                    },
+                                    "num": {
+                                        "description": "物品数量",
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "page": {
+                                        "description": "页码 1",
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "limit": {
+                                        "description": "数量 10000",
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "title": {
+                                        "description": "物品名称",
+                                        "type": "string",
+                                        "format": "text"
+                                    },
+                                    "grade": {
+                                        "description": "等级",
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "type_id": {
+                                        "description": "种类id 1 材料 39 装备 23 消耗品 31 时装礼包",
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "second_type_id": {
+                                        "description": "子类id 25",
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "filter": {
+                                        "description": "物品名称过滤",
+                                        "type": "string",
+                                        "format": "text"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/api/dnf/multiDefaultSend": {
+            "post": {
+                "tags": [
+                    "DNFM-GM"
+                ],
+                "summary": "批量发送物品(默认)",
+                "operationId": "8bb6df6ce2d6798644b529ec77383ba5",
                 "requestBody": {
                     "required": true,
                     "content": {

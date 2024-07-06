@@ -58,8 +58,9 @@
             <input type="text" class="form-control" id="code" name="code" placeholder="激活码" value="">
         </div>
         <div class="col-md-3">
-            <button type="submit" class="btn btn-primary">刷新列表</button>
+            <button type="submit" class="btn btn-primary">搜索</button>
 		    <button class="btn btn-secondary btn btn-danger" id="batchSendBtn">批量发送</button>
+		    <button class="btn btn-secondary btn btn-warning" id="batchDefaultSendBtn">默认发送</button>
             <button type="reset" class="btn btn-secondary" id="resetDemo">重置</button>
         </div>
     </form>
@@ -122,6 +123,8 @@
         const numModal = new bootstrap.Modal(document.getElementById('numModal'));
         const numForm = document.getElementById('numForm');
         const batchSendBtn = document.getElementById('batchSendBtn');
+        const batchDefaultSendBtn = document.getElementById('batchDefaultSendBtn');
+        const resetDemoBtn = document.getElementById('resetDemo');
         let totalTextNode = document.createElement('li');
         totalTextNode.className = `page-item`;
         totalTextNode.innerHTML = '';
@@ -212,7 +215,7 @@
             axios.get(`${BASE_URL}/api/dnf/propList`, { params })
                 .then(response => {
                     const data = response.data.data.list;
-                    const count = response.data.data.count;
+                    const count = response.data.data.count ?? 0;
                     totalPages = Math.ceil(count / 10);
                     renderTable(data);
                     renderPagination();
@@ -258,7 +261,7 @@
 
         function renderLimitOptions() {
             const limitSelect = document.getElementById('limit');
-            limitSelect.innerHTML = '<option value="">选择页码</option>';
+            limitSelect.innerHTML = '<option value="">单页条数</option>';
             for (const [value, text] of Object.entries(enumData.limitOptions)) {
                 const option = document.createElement('option');
                 option.value = value;
@@ -288,9 +291,10 @@
 
         function renderTable(data) {
             tableBody.innerHTML = '';
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+            if(data){
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
                     <td style="width: 300px;">${item.grade}</td>
                     <td style="width: 300px;">${item.title}</td>
                     <td style="white-space: nowrap;width: 300px;">
@@ -307,8 +311,9 @@
                         <button class="btn btn-primary btn-sm send-btn" data-id="${item.id}">发送</button>
                     </td>
                 `;
-                tableBody.appendChild(row);
-            });
+                    tableBody.appendChild(row);
+                });
+            }
             attachSelectTableEvent();
             attachSendBtnListeners();
         }
@@ -334,8 +339,8 @@
                     const selectedRadio = document.querySelector(`input[name="numOptions-${id}"]:checked`);
                     const selectedValue = selectedRadio ? selectedRadio.value : null;
 
-                    if (!quantity || !selectedValue) {
-                        alert('请输入数量并选择一个数量选项');
+                    if (!quantity && !selectedValue) {
+                        alert('请输入数量或选择一个数量选项');
                         return;
                     }
 
@@ -350,14 +355,14 @@
                     const data = {
                         username: username,
                         code: code,
-                        prop_id: id,
+                        id: id,
                         num: quantity,
                         numOption: selectedValue
                     };
 
                     axios.post(`${BASE_URL}/api/dnf/propNum`, data)
                         .then(response => {
-                            alert('发送成功！');
+                            alert(response.data.msg);
                         })
                         .catch(error => {
                             console.error('发送失败:', error);
@@ -482,12 +487,22 @@
                 num
             })
             .then(response => {
-                alert('发送成功');
+                alert(response.data.msg);
                 numModal.hide();
             })
             .catch(error => {
                 console.error('Error sending prop:', error);
             });
+        });
+
+        resetDemoBtn.addEventListener('click', function() {
+            document.getElementById('limit').value = '10';
+            document.getElementById('title').value = '';
+            document.getElementById('filter').value = '';
+            document.getElementById('grade').value = '';
+            document.getElementById('type_id').value = '';
+            document.getElementById('second_type_id').value = '';
+            fetchData();
         });
 
         batchSendBtn.addEventListener('click', function() {
@@ -497,6 +512,7 @@
                 const second_type_id = document.getElementById('second_type_id').value;
                 const title = document.getElementById('title').value;
 		        const multiNum = document.getElementById('multiNum').value;
+		        const filter = document.getElementById('filter').value;
                 if(!type_id){
                     alert('一级类型必选');
                     return;
@@ -510,9 +526,38 @@
                     limit: 10000,
                     title,
 		            num:multiNum,
+                    filter,
                 })
             .then(response => {
-                alert('批量发送成功');
+                alert(response.data.msg);
+            })
+            .catch(error => {
+                console.error('Error batch sending props:', error);
+            });
+        });
+
+        batchDefaultSendBtn.addEventListener('click', function() {
+                const username = document.getElementById('username').value;
+                const code = document.getElementById('code').value;
+                const type_id = document.getElementById('type_id').value;
+                const second_type_id = document.getElementById('second_type_id').value;
+                const title = document.getElementById('title').value;
+		        const multiNum = document.getElementById('multiNum').value;
+		        const filter = document.getElementById('filter').value;
+
+                axios.post(`${BASE_URL}/api/dnf/multiDefaultSend`, {
+                    username,
+                    code,
+                    type_id,
+                    second_type_id,
+                    page: 1,
+                    limit: 10000,
+                    title,
+		            num:multiNum,
+                    filter,
+                })
+            .then(response => {
+                alert(response.data.msg);
             })
             .catch(error => {
                 console.error('Error batch sending props:', error);

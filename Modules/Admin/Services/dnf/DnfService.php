@@ -118,6 +118,11 @@ class DnfService extends BaseApiService
     private function handleRequest($urlKey, $method, $params)
     {
         $call = $this->getter($params,'call');
+        $filter = $this->getter($params,'filter');
+        if($filter){
+            $params['page'] = 1;
+            $params['limit'] = 99999;
+        }
         // 构造完整URL并发起请求
         $url = env("DNFGM_URL") . env("DNFGM_{$urlKey}");
         $response = $method === 'GET' ? HttpRequest::get($url, $params) : HttpRequest::post($url, $params);
@@ -127,6 +132,11 @@ class DnfService extends BaseApiService
         }
         // 解码响应
         $decodedResponse = json_decode($response, true);
+        // 根据筛选条件过滤物品
+        if (!$call && $filter) {
+            $decodedResponse['data'] =  $this->searchTitlesWithMultipleChars($this->getter($decodedResponse,'data'), $filter);
+            $decodedResponse['count'] = count($this->getter($decodedResponse,'data'));
+        }
         // 请求成功，返回成功响应
         if($call){
             return $this->getter($decodedResponse,'data');
@@ -147,20 +157,22 @@ class DnfService extends BaseApiService
         $return = []; // 初始化一个空数组来保存匹配的数据
         $searchTermsArray = preg_split('//u', $searchTerms, -1, PREG_SPLIT_NO_EMPTY); // 分割搜索词为单个字符数组，支持Unicode（适用于中文）
         // 遍历二维数组
-        foreach ($dataArray as $item) {
-            $title = $this->getter($item, 'title'); // 获取数组中的值
-            $matchFound = false; // 标记是否找到匹配
-            // 遍历分割后的搜索词字符
-            foreach ($searchTermsArray as $char) {
-                // 使用stripos进行模糊匹配，检查字符是否在$title中
-                if (stripos($title, $char) !== false) {
-                    $matchFound = true;
-                    break; // 一旦找到匹配的字符，即可跳出循环
+        if($dataArray){
+            foreach ($dataArray as $item) {
+                $title = $this->getter($item, 'title'); // 获取数组中的值
+                $matchFound = false; // 标记是否找到匹配
+                // 遍历分割后的搜索词字符
+                foreach ($searchTermsArray as $char) {
+                    // 使用stripos进行模糊匹配，检查字符是否在$title中
+                    if (stripos($title, $char) !== false) {
+                        $matchFound = true;
+                        break; // 一旦找到匹配的字符，即可跳出循环
+                    }
                 }
-            }
-            // 如果当前item的title中包含所有搜索字符中的至少一个，则添加到结果数组中
-            if ($matchFound) {
-                $return[] = $item;
+                // 如果当前item的title中包含所有搜索字符中的至少一个，则添加到结果数组中
+                if ($matchFound) {
+                    $return[] = $item;
+                }
             }
         }
         // 返回所有匹配的数据
@@ -258,5 +270,59 @@ class DnfService extends BaseApiService
         return $this->apiSuccess(MessageData::Ok, $responses);
     }
 
+    /**
+     * 默认发送全部物品
+     * @return \Modules\Common\Services\JSON
+     */
+    public function multiDefaultSend(){
+        // 获取请求参数，预先设定默认值以减少getter调用
+        $params = request()->all();
+        $params['call'] = true; // 更直观的布尔值
+        $params['page'] = 1;
+        $params['limit'] = 9999999;
+        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>1]));
+        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>39]));
+        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>23]));
+        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>31]));
+        // 返回成功的API响应
+        return $this->apiSuccess(MessageData::Ok, $responses);
+    }
+
+    /**
+     * 默认发送全部物品 - 调用
+     * @param $params
+     * @return array
+     * @throws \Modules\Common\Exceptions\ApiException
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
+    protected function multiDefaultSendCall($params = []){
+        $responses = [];
+        if(!$params){
+            return $responses;
+        }
+        $typeId = $params['type_id'] ?? null;
+        $filter = $params['filter'] ?? '';
+        $params['call'] = true; // 更直观的布尔值
+        $params['page'] = 1;
+        $params['limit'] = 9999999;
+        // 获取物品列表
+        $items = $this->handleRequest('PROP_URL', 'GET', $params);
+        // 根据筛选条件过滤物品
+        if ($filter) {
+            $items = $this->searchTitlesWithMultipleChars($items, $filter);
+        }
+        foreach ($items as $item) {
+            // 设置物品ID和数量
+            $sendParams = [
+                'id' => $item['id'],
+                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? 99999) : ($params['num'] ?? 1),
+            ];
+            // 发送物品
+            $responses[] = $this->handleRequest('SEND_URL', 'POST', array_merge($params, $sendParams));
+            // 间隔执行，防止并发问题（可根据实际情况调整）
+            usleep(1000000); // 等待1秒，单位为微秒
+        }
+        return $responses;
+    }
 
 }
