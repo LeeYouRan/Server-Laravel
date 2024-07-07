@@ -679,6 +679,7 @@
             })
             .catch(error => {
                 console.error('Error sending prop:', error);
+                showMessage('发送失败，请重试',false);
             });
         });
 
@@ -718,10 +719,11 @@
                 })
             .then(response => {
                 // alert(response.data.msg);
-                showMessage(response.data.msg,false);
+                showMessage(response.data.msg,true);
             })
             .catch(error => {
                 console.error('Error batch sending props:', error);
+                showMessage('发送失败，请重试',false);
             });
         });
 
@@ -751,6 +753,7 @@
             })
             .catch(error => {
                 console.error('Error batch sending props:', error);
+                showMessage('发送失败，请重试',false);
             });
         });
 
