@@ -23,6 +23,7 @@ namespace Modules\Common\Exceptions;
 
 class MessageData
 {
+    const TIME_OUT= '响应超时';
     const BAD_REQUEST = '服务端异常！';
     const INTERNAL_SERVER_ERROR = '服务器错误！';
     const Ok = '操作成功！';

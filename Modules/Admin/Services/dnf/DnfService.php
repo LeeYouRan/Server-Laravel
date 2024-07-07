@@ -26,6 +26,12 @@ use Services\HttpRequest;
 
 class DnfService extends BaseApiService
 {
+    // 常量定义：最大限制和默认延时
+    protected const MAX_LIMIT = 99999999;
+
+    protected const DEFAULT_DELAY = 1000000 / 20; // 50ms delay
+
+    protected const TIME_OUT_LIMIT = 60000; //1min
 
     // 一级类型数组
     protected static $firstTypeOptions =
@@ -107,101 +113,108 @@ class DnfService extends BaseApiService
         ];
 
     /**
-     * 封装接口返回
-     * @param $urlKey
-     * @param $method
-     * @param $params
-     * @return \Modules\Common\Services\JSON
-     * @throws \Modules\Common\Exceptions\ApiException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * 处理HTTP请求的私有方法。
+     *
+     * @param string $urlKey API路径的键
+     * @param string $method HTTP方法（GET或POST）
+     * @param array $params 请求参数
+     * @return mixed API响应结果
      */
-    private function handleRequest($urlKey, $method, $params)
+    private function handleRequest($urlKey, $method, $params = [])
     {
+        // 获取当前时间戳
         $start = $this->getCurrentMillisecondsTimestamp();
-        $call = $this->getter($params,'call');
-        $filter = $this->getter($params,'filter');
-        if($filter){
+        $call = $this->getter($params, 'call');
+        $filter = $this->getter($params, 'filter');
+        if ($filter) {
             $params['page'] = 1;
-            $params['limit'] = 99999999;
+            $params['limit'] = self::MAX_LIMIT;
         }
-        // 构造完整URL并发起请求
+
+        // 构建URL
         $url = env("DNFGM_URL") . env("DNFGM_{$urlKey}");
+        // 根据HTTP方法进行请求
         $response = $method === 'GET' ? HttpRequest::get($url, $params) : HttpRequest::post($url, $params);
-        // 处理请求失败的情况
+
+        // 请求失败时返回错误
         if ($response === false) {
             return $this->apiError(MessageData::BAD_REQUEST);
         }
-        // 解码响应
+
+        // 解析响应数据
         $decodedResponse = json_decode($response, true);
-        // 根据筛选条件过滤物品
+
+        // 处理过滤逻辑
         if (!$call && $filter) {
-            $decodedResponse['data'] =  $this->searchTitlesWithMultipleChars($this->getter($decodedResponse,'data'), $filter);
-            $decodedResponse['count'] = count($this->getter($decodedResponse,'data'));
+            $decodedResponse['data'] =  $this->searchTitlesWithMultipleChars($this->getter($decodedResponse, 'data'), $filter);
+            $decodedResponse['count'] = count($this->getter($decodedResponse, 'data'));
         }
+
         // 请求成功，返回成功响应
         if($call){
             return $this->getter($decodedResponse,'data');
         }
-        $msg = $this->getter($decodedResponse,'msg',MessageData::Ok);
-        $data = $this->getter($decodedResponse,'count') ? ['list'=> $this->getter($decodedResponse,'data'), 'count'=> $this->getter($decodedResponse,'count')] : $this->getter($decodedResponse,'data');
-        $code = $this->getter($decodedResponse,'code');
+
+        // 获取响应消息、数据和状态码
+        $msg = $this->getter($decodedResponse, 'msg', MessageData::Ok);
+        $data = $this->getter($decodedResponse, 'count') ? ['list' => $this->getter($decodedResponse, 'data'), 'count' => $this->getter($decodedResponse, 'count')] : $this->getter($decodedResponse, 'data');
+        $code = $this->getter($decodedResponse, 'code');
         $end = $this->getCurrentMillisecondsTimestamp();
         $calc = $this->calculateTimeDifference($start, $end);
+
+        // 返回成功响应
         return $this->apiSuccess($msg . $calc, $data, $code);
     }
 
     /**
-     * 根据搜索内容模糊匹配返回符合条件的数据
-     * @param array $dataArray
-     * @param string $searchTerm
-     * @return array
+     * 根据多个字符搜索标题的私有方法。
+     *
+     * @param array $dataArray 数据数组
+     * @param string $searchTerms 搜索字符
+     * @return array 过滤后的数据数组
      */
-    private function searchTitlesWithMultipleChars(array $dataArray, string $searchTerms){
-        $return = []; // 初始化一个空数组来保存匹配的数据
-        $searchTermsArray = preg_split('//u', $searchTerms, -1, PREG_SPLIT_NO_EMPTY); // 分割搜索词为单个字符数组，支持Unicode（适用于中文）
-        // 遍历二维数组
-        if($dataArray){
+    private function searchTitlesWithMultipleChars(array $dataArray, string $searchTerms)
+    {
+        $return = [];
+        $searchTermsArray = preg_split('//u', $searchTerms, -1, PREG_SPLIT_NO_EMPTY);
+        if ($dataArray) {
             foreach ($dataArray as $item) {
-                $title = $this->getter($item, 'title'); // 获取数组中的值
-                $matchFound = false; // 标记是否找到匹配
-                // 遍历分割后的搜索词字符
+                $title = $this->getter($item, 'title');
+                $matchFound = false;
                 foreach ($searchTermsArray as $char) {
-                    // 使用stripos进行模糊匹配，检查字符是否在$title中
                     if (stripos($title, $char) !== false) {
                         $matchFound = true;
-                        break; // 一旦找到匹配的字符，即可跳出循环
+                        break;
                     }
                 }
-                // 如果当前item的title中包含所有搜索字符中的至少一个，则添加到结果数组中
                 if ($matchFound) {
                     $return[] = $item;
                 }
             }
         }
-        // 返回所有匹配的数据
         return $return;
     }
 
     /**
-     * 枚举
-     * @return \Modules\Common\Services\JSON
+     * 返回枚举选项的公共方法。
+     *
+     * @return mixed API响应结果
      */
-    public function enum(){
+    public function enum()
+    {
         $data = [
             'firstTypeOptions' => self::$firstTypeOptions,
             'secondTypeOptions' => self::$secondTypeOptions,
             'gradeOptions' => self::$gradeOptions,
             'limitOptions' => self::$limitOptions,
         ];
-        return $this->apiSuccess(MessageData::Ok,$data);
+        return $this->apiSuccess(MessageData::Ok, $data);
     }
 
-
     /**
-     * 子列表
-     * @return \Modules\Common\Services\JSON
-     * @throws \Modules\Common\Exceptions\ApiException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * 获取子列表的公共方法。
+     *
+     * @return mixed API响应结果
      */
     public function subList()
     {
@@ -210,10 +223,9 @@ class DnfService extends BaseApiService
     }
 
     /**
-     * 物品列表
-     * @return \Modules\Common\Services\JSON
-     * @throws \Modules\Common\Exceptions\ApiException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * 获取道具列表的公共方法。
+     *
+     * @return mixed API响应结果
      */
     public function propList()
     {
@@ -222,10 +234,9 @@ class DnfService extends BaseApiService
     }
 
     /**
-     * 物品发送
-     * @return \Modules\Common\Services\JSON
-     * @throws \Modules\Common\Exceptions\ApiException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * 获取道具数量的公共方法。
+     *
+     * @return mixed API响应结果
      */
     public function propNum()
     {
@@ -234,102 +245,146 @@ class DnfService extends BaseApiService
     }
 
     /**
-     * 批量发送物品
-     * @return \Modules\Common\Services\JSON
-     * @throws \Modules\Common\Exceptions\ApiException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * 批量发送物品的公共方法。
+     *
+     * @return mixed API响应结果
      */
     public function multiSend()
     {
         $start = $this->getCurrentMillisecondsTimestamp();
-        // 获取请求参数，预先设定默认值以减少getter调用
         $params = request()->all();
         $typeId = $params['type_id'] ?? null;
         $filter = $params['filter'] ?? '';
-        $params['call'] = true; // 更直观的布尔值
-        // 验证必要参数的存在
+        $params['call'] = true;
+
+        // 检查typeId是否存在
         if (!$typeId) {
             return $this->apiError('Type ID is required.');
         }
+
         // 获取物品列表
         $items = $this->handleRequest('PROP_URL', 'GET', $params);
-        // 根据筛选条件过滤物品
+
+        // 过滤物品列表
         if ($filter) {
             $items = $this->searchTitlesWithMultipleChars($items, $filter);
         }
-        // 准备发送数据的数组
+
         $responses = [];
+        // 遍历物品列表并发送请求
         foreach ($items as $item) {
-            // 设置物品ID和数量
             $sendParams = [
                 'id' => $item['id'],
-                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? 999999) : ($params['num'] ?? 1),
+                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? self::MAX_LIMIT) : ($params['num'] ?? 1),
             ];
-            // 发送物品
             $responses[] = $this->handleRequest('SEND_URL', 'POST', array_merge($params, $sendParams));
-            // 间隔执行，防止并发问题（可根据实际情况调整）
-            usleep(1000000/20); // 等待1秒，单位为微秒
+            if (!$this->break($start)) {
+                return $this->apiError(MessageData::TIME_OUT);
+            }
+            usleep(self::DEFAULT_DELAY);
         }
         $end = $this->getCurrentMillisecondsTimestamp();
         $calc = $this->calculateTimeDifference($start, $end);
-        // 返回成功的API响应
         return $this->apiSuccess(MessageData::Ok . $calc, $responses);
     }
 
     /**
-     * 默认发送全部物品
-     * @return \Modules\Common\Services\JSON
+     * 批量默认发送物品的公共方法。
+     *
+     * @return mixed API响应结果
      */
-    public function multiDefaultSend(){
+    public function multiDefaultSend()
+    {
         $start = $this->getCurrentMillisecondsTimestamp();
-        // 获取请求参数，预先设定默认值以减少getter调用
         $params = request()->all();
-        $params['call'] = true; // 更直观的布尔值
+        $params['call'] = true;
         $params['page'] = 1;
-        $params['limit'] = 99999999;
-        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>1]));
-        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>39]));
-        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>23]));
-        $responses[] = $this->multiDefaultSendCall(array_merge($params,['type_id'=>31]));
+        $params['limit'] = self::MAX_LIMIT;
+
+        $responses = [];
+        // 依次调用multiDefaultSendCall方法并检查超时
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 1, 'start' => $start]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 39, 'start' => $start]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 23, 'start' => $start]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
         $end = $this->getCurrentMillisecondsTimestamp();
         $calc = $this->calculateTimeDifference($start, $end);
-        // 返回成功的API响应
         return $this->apiSuccess(MessageData::Ok . $calc, $responses);
     }
 
     /**
-     * 默认发送全部物品 - 调用
-     * @param $params
-     * @return array
-     * @throws \Modules\Common\Exceptions\ApiException
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * 检查是否超时的保护方法。
+     *
+     * @param int $startTimestamp 开始时间戳
+     * @param int|null $endTimestamp 结束时间戳
+     * @return bool 是否在限定时间内
+     * @throws \Exception 参数无效时抛出异常
      */
-    protected function multiDefaultSendCall($params = []){
-        $responses = [];
-        if(!$params){
-            return $responses;
+    protected function break($startTimestamp, $endTimestamp = null)
+    {
+        if (!is_numeric($startTimestamp)) {
+            throw new \Exception('The start timestamp must be a valid number.');
         }
+        if ($endTimestamp !== null && !is_numeric($endTimestamp)) {
+            throw new \Exception('The end timestamp must be a valid number.');
+        }
+        if (!$endTimestamp) {
+            $endTimestamp = $this->getCurrentMillisecondsTimestamp();
+        }
+        return $endTimestamp - $startTimestamp < self::TIME_OUT_LIMIT;
+    }
+
+
+    /**
+     * 执行批量默认发送操作的公共方法。
+     *
+     * @param array $params 请求参数
+     * @return mixed API响应结果
+     */
+    public function multiDefaultSendCall(array $params)
+    {
+        $responses = [];
+        $start = $params['start'] ?? $this->getCurrentMillisecondsTimestamp();
         $typeId = $params['type_id'] ?? null;
         $filter = $params['filter'] ?? '';
-        $params['call'] = true; // 更直观的布尔值
-        $params['page'] = 1;
-        $params['limit'] = 99999999;
+        $params['call'] = true;
+
+        // 检查typeId是否存在
+        if (!$typeId) {
+            return $this->apiError('Type ID is required.');
+        }
+
         // 获取物品列表
         $items = $this->handleRequest('PROP_URL', 'GET', $params);
-        // 根据筛选条件过滤物品
+
+        // 过滤物品列表
         if ($filter) {
             $items = $this->searchTitlesWithMultipleChars($items, $filter);
         }
+
+        // 遍历物品列表并发送请求
         foreach ($items as $item) {
-            // 设置物品ID和数量
             $sendParams = [
                 'id' => $item['id'],
-                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? 999999) : ($params['num'] ?? 1),
+                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? self::MAX_LIMIT) : ($params['num'] ?? 1),
             ];
-            // 发送物品
             $responses[] = $this->handleRequest('SEND_URL', 'POST', array_merge($params, $sendParams));
-            // 间隔执行，防止并发问题（可根据实际情况调整）
-            usleep(1000000/20); // 等待1秒，单位为微秒
+            if (!$this->break($start)) {
+                return $this->apiError(MessageData::TIME_OUT);
+            }
+            usleep(self::DEFAULT_DELAY);
         }
         return $responses;
     }
