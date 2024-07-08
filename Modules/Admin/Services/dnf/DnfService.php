@@ -27,9 +27,9 @@ use Services\HttpRequest;
 class DnfService extends BaseApiService
 {
     // 常量定义：最大限制和默认延时
-    protected const MAX_LIMIT = 99999999;
+    protected const MAX_LIMIT = 99999;
 
-    protected const DEFAULT_DELAY = 1000000 / 20; // 50ms delay
+    protected const DEFAULT_DELAY = 1000000 / 200; // 5ms delay
 
     protected const TIME_OUT_LIMIT = 60000; //1min
 
@@ -331,6 +331,30 @@ class DnfService extends BaseApiService
         if (!$this->break($start)) {
             return $this->apiError(MessageData::TIME_OUT);
         }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'title' => '天空套第一期']));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'title' => '全套']));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'second_type_id' => 26]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'second_type_id' => 32]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'second_type_id' => 33]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'second_type_id' => 34]));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
         $end = $this->getCurrentMillisecondsTimestamp();
         $calc = $this->calculateTimeDifference($start, $end);
         return $this->apiSuccess(MessageData::Ok . $calc, $responses);
@@ -388,15 +412,17 @@ class DnfService extends BaseApiService
 
         // 遍历物品列表并发送请求
         foreach ($items as $item) {
-            $sendParams = [
-                'id' => $item['id'],
-                'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? self::MAX_LIMIT) : ($params['num'] ?? 1),
-            ];
-            $responses[] = $this->handleRequest('SEND_URL', 'POST', array_merge($params, $sendParams));
-            if (!$this->break($start)) {
-                return $this->apiError(MessageData::TIME_OUT);
+            if($item['id'] !== 25){
+                $sendParams = [
+                    'id' => $item['id'],
+                    'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? self::MAX_LIMIT) : ($params['num'] ?? 1),
+                ];
+                $responses[] = $this->handleRequest('SEND_URL', 'POST', array_merge($params, $sendParams));
+                if (!$this->break($start)) {
+                    return $this->apiError(MessageData::TIME_OUT);
+                }
+                usleep(self::DEFAULT_DELAY);
             }
-            usleep(self::DEFAULT_DELAY);
         }
         return $responses;
     }
