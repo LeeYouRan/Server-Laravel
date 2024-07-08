@@ -307,7 +307,15 @@ class DnfService extends BaseApiService
         if (!$this->break($start)) {
             return $this->apiError(MessageData::TIME_OUT);
         }
-        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 39, 'start' => $start]));
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 39, 'start' => $start, 'title' => '释魂']));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 39, 'start' => $start, 'title' => '镇魂']));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 39, 'start' => $start, 'title' => '源助力']));
         if (!$this->break($start)) {
             return $this->apiError(MessageData::TIME_OUT);
         }
@@ -315,7 +323,11 @@ class DnfService extends BaseApiService
         if (!$this->break($start)) {
             return $this->apiError(MessageData::TIME_OUT);
         }
-        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start]));
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'title' => '全职业']));
+        if (!$this->break($start)) {
+            return $this->apiError(MessageData::TIME_OUT);
+        }
+        $responses[] = $this->multiDefaultSendCall(array_merge($params, ['type_id' => 31, 'start' => $start, 'title' => '全体']));
         if (!$this->break($start)) {
             return $this->apiError(MessageData::TIME_OUT);
         }
