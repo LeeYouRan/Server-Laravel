@@ -412,7 +412,7 @@ class DnfService extends BaseApiService
 
         // 遍历物品列表并发送请求
         foreach ($items as $item) {
-            if($item['id'] !== 25){
+//            if($item['id'] !== 25){
                 $sendParams = [
                     'id' => $item['id'],
                     'num' => in_array($typeId, [1, 23]) ? ($params['num'] ?? self::MAX_LIMIT) : ($params['num'] ?? 1),
@@ -422,7 +422,7 @@ class DnfService extends BaseApiService
                     return $this->apiError(MessageData::TIME_OUT);
                 }
                 usleep(self::DEFAULT_DELAY);
-            }
+//            }
         }
         return $responses;
     }
