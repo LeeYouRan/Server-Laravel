@@ -18,8 +18,7 @@ Route::middleware('auth:api')->get('/admin', function (Request $request) {
 });
 
 Route::group(["prefix"=>"v1/admin","middleware"=>"AdminApiAuth"],function (){
-    //登录
-    Route::post('login/login', 'v1\LoginController@login');
+
 });
 //测试DNF-GM -- 不加登录校验
 Route::any('dnf/enum', 'v1\DnfController@enum');

@@ -1,20 +1,10 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Auth api",
-        "version": "0.0.1"
+        "title": "Swagger在线接口文档及测试平台",
+        "version": "1.0"
     },
     "paths": {
-        "/admin/api/index": {
-            "get": {
-                "operationId": "0decaddd0e529ecaf88281e92215043d",
-                "responses": {
-                    "200": {
-                        "description": "Display a listing of projects."
-                    }
-                }
-            }
-        },
         "/api/dnf/enum": {
             "get": {
                 "tags": [
@@ -326,154 +316,6 @@
                         }
                     }
                 },
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
-                    }
-                }
-            }
-        },
-        "/api/excel/export": {
-            "get": {
-                "tags": [
-                    "导出受保护且带水印的excel"
-                ],
-                "summary": "导出受保护且带水印的excel",
-                "operationId": "864d6a90f2a45fa287aadf82617013b4",
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
-                    }
-                }
-            }
-        },
-        "/api/excel/watermark": {
-            "get": {
-                "tags": [
-                    "导出受保护且带水印的excel"
-                ],
-                "summary": "水印图片生成",
-                "operationId": "93251bb12b6d6ee36251f72771b09d18",
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
-                    }
-                }
-            }
-        },
-        "/api/excel/exportMulti": {
-            "get": {
-                "tags": [
-                    "导出受保护且带水印的excel"
-                ],
-                "summary": "生成受保护且带水印的excel(数据量较大)",
-                "operationId": "e1d5e485ac8d9dd2b5dc307040be3c6e",
-                "parameters": [
-                    {
-                        "name": "apikey",
-                        "in": "header",
-                        "description": "apiKey",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "lines",
-                        "in": "query",
-                        "description": "测试函数 1000",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "description": "测试文件名",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
-                    }
-                }
-            }
-        },
-        "/api/excel/downloadMulti": {
-            "get": {
-                "tags": [
-                    "导出受保护且带水印的excel"
-                ],
-                "summary": "导出受保护且带水印的excel",
-                "operationId": "3b730c8abc92eb58b931f2906c97dff9",
-                "parameters": [
-                    {
-                        "name": "apikey",
-                        "in": "header",
-                        "description": "apiKey",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "lines",
-                        "in": "query",
-                        "description": "测试函数 1000",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "description": "测试文件名",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successful operation"
-                    }
-                }
-            }
-        },
-        "/api/v1/admin/login/login": {
-            "post": {
-                "tags": [
-                    "用户登录"
-                ],
-                "summary": "用户登录",
-                "operationId": "0bfd53bef0dd9d44f594e72ce5636a1c",
-                "parameters": [
-                    {
-                        "name": "apikey",
-                        "in": "header",
-                        "description": "apiKey",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "username",
-                        "in": "query",
-                        "description": "用户名",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "password",
-                        "in": "query",
-                        "description": "密码",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "successful operation"

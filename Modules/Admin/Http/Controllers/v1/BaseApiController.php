@@ -22,7 +22,12 @@ namespace Modules\Admin\Http\Controllers\v1;
 
 
 use Modules\Common\Controllers\BaseController;
-
+/**
+ * @OA\Info(
+ *   title="Swagger在线接口文档及测试平台",
+ *   version="1.0"
+ * )
+ */
 class BaseApiController extends BaseController
 {
     public function __construct(){
